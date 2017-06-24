@@ -2,6 +2,8 @@ extern crate orbtk;
 
 use orbtk::{Action, Button, Grid, Image, Label, Menu, Point, ProgressBar, Rect, Separator, TextBox, Window, Checkbox};
 use orbtk::traits::{Border, Click, Enter, Place, Text};
+use orbtk::traits::Container;
+use orbtk::traits::Side::{Top, Bot, Lef, Rig};
 
 fn main() {
     let mut window = Window::new(Rect::new(100, 100, 420, 730), "OrbTK");
@@ -111,14 +113,22 @@ fn main() {
         }
     }
 
+    let container_rect = Rect::new(100, 100, 420, 730).shave(50.0, Top).unwrap().shave(50.0, Lef).unwrap().shave(50.0, Bot).unwrap().shave(50.0, Rig).unwrap(); // This unwrap won't panic because shave is passed a valid percent
+
     let checkbox = Checkbox::new();
-    checkbox.position((x + 300),(y - 80))
+    let checkbox_container = container_rect.center(50.0).unwrap();
+    checkbox.position(checkbox_container.x, checkbox_container.y)
         .size(16, 16);
+    println!("{:?}", container_rect);
     window.add(&checkbox); 
-    let img_checkbox = Checkbox::from_paths("res/unchecked.png", "res/checked.png").unwrap();
-    img_checkbox.position((x + 300), (y - 100))
-        .size(16, 16);
-    window.add(&img_checkbox);
+    let img_checkbox_rslt = Checkbox::from_paths("res/unchecked.png", "res/checked.png");
+    if let Ok(img_checkbox) = img_checkbox_rslt {
+        img_checkbox.position(checkbox_container.x, (checkbox_container.y - 30))
+            .size(16, 16);
+        window.add(&img_checkbox);
+    } else if let Err(err) = img_checkbox_rslt {
+        println!("Error: {}", err);
+    }
 
 
     {
